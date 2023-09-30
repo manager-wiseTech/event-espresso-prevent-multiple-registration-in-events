@@ -1,0 +1,1 @@
+# event-espresso-prevent-multiple-registration-in-events
