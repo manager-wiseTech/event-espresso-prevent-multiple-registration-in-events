@@ -14,6 +14,19 @@ class EventRegistrationValidationPlugin {
         add_action('wp_ajax_ee_prevent_multiple_ajax_action', array($this, 'preventMultipleAjaxFunction'));
         add_action('wp_ajax_nopriv_ee_prevent_multiple_ajax_action', array($this, 'preventMultipleAjaxFunction'));
         add_action('admin_menu', array($this,'register_event_registration_settings_page'));
+        $this->initPluginUpdateChecker();
+    }
+
+    public function initPluginUpdateChecker() {
+        require_once dirname(__FILE__) . '/plugin-update-checker-master/plugin-update-checker.php';
+
+        $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+            'https://github.com/manager-wiseTech/event-espresso-prevent-multiple-registration-in-events', // Replace with your GitHub repository URL
+            __FILE__,
+            'ee-prevent-multiple-registration-in-events'
+        );
+
+        $myUpdateChecker->setBranch('main');
     }
     public function register_event_registration_settings_page() {
         add_menu_page(
