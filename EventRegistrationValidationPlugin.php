@@ -13,7 +13,46 @@ class EventRegistrationValidationPlugin {
         add_action('wp_enqueue_scripts', array($this, 'enqueueScripts'));
         add_action('wp_ajax_ee_prevent_multiple_ajax_action', array($this, 'preventMultipleAjaxFunction'));
         add_action('wp_ajax_nopriv_ee_prevent_multiple_ajax_action', array($this, 'preventMultipleAjaxFunction'));
+        add_action('admin_menu', array($this,'register_event_registration_settings_page'));
     }
+    public function register_event_registration_settings_page() {
+        add_menu_page(
+            'Event Registration Settings',
+            'Event Registration Settings',
+            'manage_options',
+            'event-registration-settings',
+            array($this,'event_registration_settings_page_content'),
+            'dashicons-tickets',
+            100
+        );
+    }
+
+    public function event_registration_settings_page_content() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        if (isset($_POST['event_registration_slug'])) {
+            $event_registration_slug = sanitize_text_field($_POST['event_registration_slug']);
+            update_option('event_registration_slug', $event_registration_slug);
+            echo '<div class="updated"><p>Settings saved.</p></div>';
+        }
+
+        $event_registration_slug = get_option('event_registration_slug', 'event-registration');
+
+        ?>
+        <div class="wrap">
+            <h2>Event Registration Settings</h2>
+            <form method="post" action="">
+                <label for="event_registration_slug">Registration Page Slug:</label>
+                <input type="text" id="event_registration_slug" name="event_registration_slug" value="<?php echo esc_attr($event_registration_slug); ?>" />
+                <p class="description">Enter the slug of your event registration page.</p>
+                <?php submit_button('Save Settings'); ?>
+            </form>
+        </div>
+        <?php
+    }
+
 
     public function preventMultipleRegistrationScriptFooter() {
         global $wp;
@@ -104,6 +143,8 @@ class EventRegistrationValidationPlugin {
 
         wp_send_json($response);
     }
+
+
 }
 
 $eventRegistrationValidationPlugin = new EventRegistrationValidationPlugin();
